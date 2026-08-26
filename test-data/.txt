@@ -1,0 +1,11 @@
+test-data/
+
+Fake data ke liye.
+
+Example:
+
+Customer: Ali
+Order: ORD-1001
+Status: Delayed
+
+Baad mein testing ke liye use hoga.

@@ -1,0 +1,5 @@
+dashboard/
+
+Future mein Next.js dashboard banega.
+
+Abhi dashboard nahi banaya.

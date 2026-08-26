@@ -1,0 +1,48 @@
+# Environment variables
+.env
+
+# Docker volumes and data
+postgres_data/
+n8n_data/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node modules (if any node-based tools are added later)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+*.min.js
+*.min.css
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Database dumps
+*.sql
+*.dump
+*.bak
+
+# Screenshots (optional - uncomment if you want to ignore screenshots)
+# screenshots/*

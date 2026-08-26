@@ -1,0 +1,12 @@
+workflows/
+
+Baad mein yahan n8n ke exported workflows rakh sakte hain.
+
+Example:
+
+workflows/
+├── 01-event-intake.json
+├── 02-ai-triage.json
+└── 03-investigation.json
+
+Abhi empty hai.

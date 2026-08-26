@@ -1,0 +1,11 @@
+database/
+
+Baad mein PostgreSQL ke database schema/SQL files.
+
+Example:
+
+database/
+├── schema.sql
+└── seed.sql
+
+Abhi actual business tables nahi banaye.

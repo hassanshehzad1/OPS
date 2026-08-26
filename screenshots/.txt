@@ -1,0 +1,10 @@
+screenshots/
+
+Portfolio ke screenshots.
+
+Example:
+
+screenshots/
+├── n8n-workflow.png
+├── dashboard.png
+└── approval-flow.png

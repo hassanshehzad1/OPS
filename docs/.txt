@@ -1,0 +1,10 @@
+docs/
+
+Project documentation.
+
+Example:
+
+docs/
+├── architecture.md
+├── workflows.md
+└── testing.md

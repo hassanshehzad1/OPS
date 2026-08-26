@@ -1,0 +1,385 @@
+2️⃣ Docker Setup
+
+Humne Docker use kiya.
+
+Docker kya karta hai?
+
+Simple example:
+
+Normally hume manually install karna padta:
+
+n8n
+PostgreSQL
+Node dependencies
+configuration
+etc.
+
+Docker mein hum services ko containers mein run karte hain:
+
+Docker
+│
+├── n8n Container
+│
+└── PostgreSQL Container
+
+Har container isolated environment mein run hota hai.
+Docker Start Karne Ki Koshish
+
+Humne initially run kiya:
+
+docker compose up -d
+Iska matlab:
+
+docker compose
+
+→ Docker Compose ko use karo.
+
+up
+
+→ services create/start karo.
+
+-d
+
+→ detached mode; terminal ko block mat karo, background mein run karo.
+
+Expected architecture:
+
+docker compose up -d
+
+       ↓
+
+PostgreSQL starts
+       +
+n8n starts
+7️⃣ Pehle Docker Error Aaya
+
+Initially error tha:
+
+failed to connect to the docker API
+Meaning:
+
+Docker command installed thi, lekin:
+
+Docker Engine running nahi tha.
+
+Isliye containers start nahi ho rahe the.
+
+8️⃣ docker info
+
+Humne run kiya:
+
+docker info
+Is command ka purpose?
+
+Ye Docker Engine ki detailed information show karta hai.
+
+Tumhare output mein:
+
+Server Version: 29.4.2
+Operating System: Docker Desktop
+OSType: linux
+Kernel Version: ... WSL2
+
+aaya.
+
+Isse confirm hua:
+
+Docker Engine → Running ✅
+9️⃣ docker run hello-world
+
+Humne test ke liye:
+
+docker run hello-world
+
+chalaya.
+
+Iska purpose?
+
+Ye Docker ka basic health test hai.
+
+Concept:
+
+Docker
+ ↓
+hello-world image download
+ ↓
+container run
+ ↓
+Hello from Docker!
+
+Agar ye successful ho:
+
+Docker properly containers run kar sakta hai.
+
+🔟 Docker Compose Start
+
+Phir:
+
+docker compose up -d
+
+chalaya.
+
+Is baar:
+
+opspilot-postgres Healthy
+opspilot-n8n Running
+
+aaya.
+
+Lekin baad mein status check karne par n8n:
+
+Restarting (1)
+
+nikla.
+
+1️⃣1️⃣ docker compose ps
+
+Humne command use ki:
+
+docker compose ps
+Iska purpose?
+
+Ye batata hai ke Compose ke containers ki current state kya hai.
+
+Example:
+
+NAME
+opspilot-n8n
+opspilot-postgres
+
+STATUS
+Up
+Healthy
+
+Hamare case mein pehle:
+
+n8n → Restarting ❌
+PostgreSQL → Healthy ✅
+
+tha.
+
+1️⃣2️⃣ n8n Error Find Kiya
+
+Humne run kiya:
+
+docker compose logs n8n --tail=100
+Iska matlab:
+
+logs
+
+→ container ke logs dikhao.
+
+n8n
+
+→ specifically n8n service.
+
+--tail=100
+
+→ last 100 log lines.
+
+Error mila:
+
+Error: Command "n8n" not found
+1️⃣3️⃣ Root Cause Find Hua
+
+Devin ne check karke discover kiya ke docker-compose.yml mein:
+
+command: n8n start
+
+tha.
+
+Problem:
+
+Official n8n Docker image already apna startup command provide karti hai.
+
+Humne us command ko manually override kar diya tha.
+
+Isliye n8n properly start nahi hua.
+
+1️⃣4️⃣ Devin ne Fix Kiya
+
+Ye remove kiya:
+
+command: n8n start
+
+Ab n8n image ka default startup command use hota hai.
+
+Result:
+
+n8n:
+
+Up ✅
+1️⃣5️⃣ Final Docker Restart
+
+Humne:
+
+docker compose down
+
+use kiya.
+
+down kya karta hai?
+
+Current Compose containers ko stop/remove karta hai.
+
+Simple:
+
+Running containers
+       ↓
+docker compose down
+       ↓
+containers stopped/removed
+
+Volumes normally remain karte hain, isliye persistent data preserve ho sakta hai.
+
+Phir:
+
+docker compose up -d
+
+Dobara services start ki.
+
+1️⃣6️⃣ Final Status
+
+Latest result:
+
+opspilot-n8n
+STATUS: Up
+PORT: 5678
+
+opspilot-postgres
+STATUS: Up (healthy)
+PORT: 5432
+Therefore:
+Docker                 ✅
+Docker Engine          ✅
+Docker Compose         ✅
+PostgreSQL             ✅
+PostgreSQL Health      ✅
+n8n                    ✅
+n8n Port 5678          ✅
+n8n Account            ✅
+1️⃣7️⃣ n8n Account
+
+Humne browser mein:
+
+http://localhost:5678
+
+open kiya.
+
+n8n setup screen aayi.
+
+Tumne account create kar liya.
+
+Iska matlab:
+
+Browser
+   ↓
+localhost:5678
+   ↓
+Docker
+   ↓
+n8n Container
+   ↓
+n8n UI
+
+successfully working hai.
+
+⚠️ Ek Warning Abhi Baqi Hai
+
+Har Docker Compose command par:
+
+the attribute `version` is obsolete
+
+warning aa rahi hai.
+
+Iska matlab?
+
+docker-compose.yml mein old-style:
+
+version: ...
+
+field hai.
+
+Ye error nahi hai.
+
+Project chal raha hai.
+
+Later professional cleanup mein isko remove karenge.
+
+🧠 Abhi Humne KYA NAHI Kiya?
+
+Ye bhi important hai.
+
+Abhi tak:
+
+❌ AI Agent nahi banaya
+❌ Gmail connect nahi kiya
+❌ Webhook workflow nahi banaya
+❌ PostgreSQL business tables nahi banaye
+❌ Customer system nahi banaya
+❌ Order system nahi banaya
+❌ AI prompts nahi banaye
+❌ Automation nahi banayi
+❌ Dashboard nahi banaya
+
+Aur ye intentional hai.
+
+🎯 Phase 0 ka Final Architecture
+
+Ab hamara foundation:
+
+                 OPSPILOT AI
+                     │
+              Docker Compose
+                     │
+          ┌──────────┴──────────┐
+          │                     │
+       n8n                 PostgreSQL
+          │                     │
+    Port 5678               Port 5432
+          │                     │
+          └──────────┬──────────┘
+                     │
+                Future System
+                     │
+       ┌─────────────┼─────────────┐
+       ↓             ↓             ↓
+      AI          Business       Dashboard
+                  Data
+✅ PHASE 0 STATUS
+PHASE 0 — COMPLETE ✅
+
+Tumne successfully:
+
+Infrastructure → Docker → PostgreSQL → n8n → Persistence/Restart → Account Setup
+
+complete kar liya hai.
+
+🚀 Next: Phase 1
+
+Ab actual n8n learning/start hogi.
+
+Phase 1:
+Event Intake System
+
+Hum pehla workflow manually banayenge:
+
+Webhook
+   ↓
+Validate
+   ↓
+Normalize
+   ↓
+Response
+
+Example:
+
+Business system send karega:
+
+{
+  "customer_id": "CUS-001",
+  "order_id": "ORD-1001",
+  "message": "My order is 3 days late",
+  "source": "customer_support"
+}
+
+n8n receive karega → data validate karega →
