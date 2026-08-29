@@ -151,4 +151,3 @@ This is Phase 0 of the OpsPilot AI project. Future phases will include:
 
 ## License
 
-[To be determined]

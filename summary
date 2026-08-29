@@ -1,0 +1,40 @@
+OpsPilot AI — Short Project Summary
+
+OpsPilot AI ek AI-powered business operations automation platform hai jo n8n + PostgreSQL + AI use karke repetitive business operations ko automatically handle karta hai.
+
+Simple flow:
+Business Event
+      ↓
+n8n Webhook
+      ↓
+Data Validation
+      ↓
+AI Analysis
+      ↓
+Decision / Classification
+      ↓
+Automated Action
+      ↓
+Database + Notification
+      ↓
+Dashboard / Human Approval
+Example:
+
+Agar customer complain kare:
+
+“Mera order 3 din late hai.”
+
+OpsPilot AI:
+
+Complaint receive karega
+Data validate karega
+AI issue ko analyze karega
+Delivery Delay classify karega
+Priority decide karega
+Database mein save karega
+Zaroorat par human ko approval ke liye bhejega
+Automatically appropriate action lega
+
+Goal: Ek professional autonomous operations system banana jo businesses ke repetitive workflows ko intelligently automate kare — sirf simple n8n workflows nahi, balki AI + automation + database + human-in-the-loop system.
+
+

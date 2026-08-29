@@ -1,0 +1,28 @@
+cd D:\OPS
+docker compose up -d
+
+Haan. Tumhara project Docker Compose se run hota hai.
+
+Server start karne ke liye:
+
+PowerShell:
+
+cd D:\OPS
+docker compose up -d
+
+Phir check:
+
+docker compose ps
+
+Tumhe ye chahiye:
+
+opspilot-n8n        Up
+opspilot-postgres   Up (healthy)
+n8n open karo:
+http://localhost:5678
+Server stop karna ho:
+docker compose down
+Logs dekhne hon:
+docker compose logs n8n --tail=50
+
+Ab docker compose up -d chalao → docker compose ps check karo → phir n8n open ka

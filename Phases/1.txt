@@ -1,0 +1,374 @@
+Bilkul. Simple aur professional way mein:
+
+Phase 1 — Event Intake System
+
+Phase 1 ka kaam sirf ye hai: OpsPilot ko external systems se events receive karna sikhana.
+
+Socho OpsPilot ek control center hai. Har business problem sabse pehle yahan enter hogi.
+
+Example
+
+Customer ka order late hai:
+
+Customer System
+      ↓
+"My order is 3 days late"
+      ↓
+OpsPilot Webhook
+      ↓
+Check data valid hai?
+      ↓
+Data ko standard format mein convert
+      ↓
+"Event received ✅"
+Hum Phase 1 mein kya banayenge?
+Webhook
+   ↓
+Validation
+   ↓
+Data Formatting
+   ↓
+Response
+
+Webhook: event receive karega.
+Validation: check karega required data hai ya nahi.
+Formatting: data ko clean/standard format mein convert karega.
+Response: sender ko confirmation dega.
+
+Important
+
+Abhi AI nahi lagayenge.
+
+Pehle foundation:
+
+Receive → Validate → Format → Respond
+
+Jab ye properly work karega, tab next phase mein AI ko is system ke upar add karenge.
+
+Phase 1 ka goal: ek reliable Event Intake Gateway banana.
+
+Bilkul. Ab ek waqt mein sirf 1 step karenge. Main next step tab dunga jab current step complete ho jaye.
+
+Phase 1 — Feature 1
+Step 1: New Workflow Create Karna
+
+n8n open karo:
+
+http://localhost:5678
+Ab:
+Workflows par jao.
+Add workflow / Create Workflow par click karo.
+New blank workflow open hoga.
+Workflow ka naam change karke rakho:
+OPS-01 — Event Intake
+Is step ka purpose
+
+Hum ek dedicated workflow bana rahe hain jo baad mein OpsPilot ke event intake system ko contain karega.
+
+Abhi koi node add mat karo.
+
+Jab OPS-01 — Event Intake workflow create ho jaye, bas "done" bolo. Phir main Step 2: Webhook node karwaunga.
+
+=====================================\
+Yes, screenshot bilkul sahi hai. ✅ Tum blank workflow mein ho.
+
+Step 2 — Webhook Node Add Karo
+
+Center mein jo button hai:
+
++ Add first step...
+
+us par click karo.
+
+Phir search box mein type karo:
+
+Webhook
+
+Result mein Webhook select karo.
+
+Webhook ka purpose
+
+Ye OpsPilot ka entry point hoga.
+
+Example:
+
+Customer/System
+      ↓
+POST request
+      ↓
+Webhook
+      ↓
+OpsPilot
+
+Abhi Webhook ke ilawa koi aur node add nahi karna.
+
+Webhook select karne ke baad jo configuration screen aaye uska screenshot bhejo. Phir main exactly bataunga ke next field mein kya select/type karna hai.
+
+Bilkul. Ab se har step ke saath short explanation dunga ke kya kar rahe hain, kyun kar rahe hain, aur practically kaise kaam karega. 👍
+
+Abhi humne kya kiya?
+
+Humne Webhook Node add ki hai.
+
+Webhook Node = OpsPilot ka entry gate 🚪
+
+Koi external application OpsPilot ko event bhejegi, for example:
+
+{
+  "customer_id": "CUS-001",
+  "message": "My order is late"
+}
+
+Webhook us request ko receive karega aur n8n workflow ko start karega.
+
+Humne settings kyun rakhi?
+Setting	Value	Reason
+HTTP Method	POST	Data receive karne ke liye
+Path	ops-event	Apna clear endpoint banane ke liye
+Authentication	None	Abhi local testing hai
+Respond	Immediately	Request ko immediately response dene ke liye
+
+Flow:
+
+External App
+     ↓
+POST /ops-event
+     ↓
+Webhook Node
+     ↓
+n8n Workflow Start
+Next step
+
+Ab hum Webhook ko test karenge — yani ek fake business event bhejenge aur dekhenge ke n8n successfully receive karta hai ya nahi.
+
+Ab Listen for test event click karo.
+Phir mujhe batao/screenshot bhejo; uske baad main next step dunga.
+=====================================
+Perfect ✅ Webhook ab listening mode mein hai.
+
+Ab next hum real test event bhejenge.
+
+Step 4 — Webhook ko Test karo
+
+PowerShell ki new window kholo aur ye command run karo:
+
+Invoke-RestMethod `
+  -Uri "http://localhost:5678/webhook-test/ops-event" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"customer_id":"CUS-001","order_id":"ORD-1001","message":"My order is 3 days late","source":"customer_support"}'
+Hum kya kar rahe hain?
+
+Hum ek fake customer-support event OpsPilot ko bhej rahe hain:
+
+Customer Support
+      ↓
+POST request
+      ↓
+Webhook
+      ↓
+OpsPilot receives event
+
+Data ye hai:
+
+Customer: CUS-001
+Order: ORD-1001
+Issue: Order 3 days late
+Source: Customer Support
+
+Agar successful hua to n8n Webhook ke OUTPUT mein received JSON show hoga. ✅
+
+Command run karke jo output aaye, woh bhejo. Phir hum verify karenge ke Feature 1 properly working hai.
+No problem — error clear hai. 👍
+
+Reason: n8n ne test webhook ko register nahi kiya. Error khud keh raha hai:
+
+Click the 'Execute workflow' button
+
+Step 4A — Workflow Execute Karo
+
+n8n mein wapas jao.
+
+Webhook window ko close/back karo.
+Canvas par Execute workflow button dhoondo.
+Us par click karo.
+Webhook ko dobara Listening for test event mode mein lao agar zaroorat ho.
+
+Phir PowerShell mein wahi POST command dobara run karo:
+
+Invoke-RestMethod `
+  -Uri "http://localhost:5678/webhook-test/ops-event" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"customer_id":"CUS-001","order_id":"ORD-1001","message":"My order is 3 days late","source":"customer_support"}'
+Ye kyun ho raha hai?
+
+n8n ka Test Webhook temporary hota hai. Pehle workflow ko execute/listen mode mein lana padta hai, tab n8n:
+
+/webhook-test/ops-event
+        ↓
+"Main ab test request receive kar raha hoon"
+
+samajhta hai.
+
+Ab sirf Execute/Listen → PowerShell command karo. Agar output aa jaye, screenshot bhejo. Phir hum verify karenge ke Feature 1 complete hai.
+
+===========================
+Good progress — sounds like the webhook is now listening and you've sent the test event. 👍
+
+A couple of things to watch for once you check the output:
+
+If it worked, the PowerShell output should show the JSON echoed back (or whatever the webhook node is set to respond with), and in n8n's canvas the Webhook node will show a green checkmark with the received data in its output panel — you should see customer_id, order_id, message, and source populated correctly.
+
+Send me the actual output (or a screenshot) and I'll confirm whether it matches what's expected for Phase 1 Step 4 test criteria.
+
+While you check that, here's where this fits in your roadmap so you don't lose track:
+
+Step 4 in the Build list is "Reject incomplete events" — that logic (IF/Code node with validation) needs to actually run and correctly reject payloads missing customer_id/order_id/message. Just receiving a valid payload successfully isn't step 4 complete yet — you still need to test the rejection path.
+Step 5 is "Return a clean normalized incident object" — the webhook should output a consistent structure regardless of which source (Gmail, Sheets, webhook) it came from.
+
+So after this valid-payload test succeeds, the real remaining work for Phase 1 is:
+
+Send an invalid/incomplete payload (e.g. missing message) and confirm it gets rejected, not silently passed through.
+Confirm normalized output structure is consistent.
+Then run the full test checklist: 5 valid + 5 invalid payloads, checking different source values produce the same normalized shape.
+
+Once all of that passes, Phase 1 is genuinely complete and you move to Phase 2 (PostgreSQL incidents table).
+
+Send me the output from this test and tell me if you've already got the "reject incomplete events" logic built in the IF/Code node — if not, I'll walk you through that next.
+
+ab phase 1 complete karwao stpe by step in ronman english
+
+Perfect, chalo Phase 1 ko step-by-step complete karte hain. Abhi tak tumhara webhook receive kar raha hai, ab hum baaki 3 cheezein karenge:
+
+Reject incomplete events (validation)
+Normalized incident object return karna
+Testing checklist (5 valid + 5 invalid + different sources)
+
+Chalo phase 1 ko finish karte hain, step by step Roman English mein:
+
+Ye flow hai jo hum ban rahe hain: event webhook se aata hai → IF/Code node check karta hai zaroori fields hain ya nahi → agar koi field missing hai to reject → agar sab theek hai to normalized object return hota hai.
+
+Ab step by step karte hain:
+
+Step 1 — Code node add karo (validation ke liye)
+
+n8n canvas mein, Webhook node ke baad ek Code node add karo (ya IF node, lekin Code node zyada flexible hai). Us mein ye logic likho:
+
+javascript
+const body = $input.item.json.body;
+
+const required = ['incident_id', 'customer_id', 'order_id', 'message', 'source'];
+const missing = required.filter(field => !body[field]);
+
+if (missing.length > 0) {
+  return [{
+    json: {
+      status: "rejected",
+      reason: `Missing fields: ${missing.join(', ')}`
+    }
+  }];
+}
+
+return [{
+  json: {
+    status: "accepted",
+    incident: {
+      incident_id: body.incident_id,
+      customer_id: body.customer_id,
+      order_id: body.order_id,
+      message: body.message,
+      source: body.source,
+      timestamp: body.timestamp || new Date().toISOString(),
+      received_at: new Date().toISOString()
+    }
+  }
+}];
+
+Note: agar tumhare payload mein incident_id nahi hai (jo tumne pehle test mein nahi bheja), to ya to isko required list se hata do, ya khud generate kar lo Code node mein (incident_id: body.incident_id || 'INC-' + Date.now()).
+
+Ekdum perfect! 🎉 Ye bilkul sahi output hai:
+
+status: accepted
+incident: {
+  incident_id: INC-1788022334207
+  customer_id: CUS-001
+  order_id: ORD-1001
+  message: My order is 3 days late
+  source: customer_support
+  timestamp: 2026-08-29...
+  received_at: 2026-08-29...
+}
+
+Matlab valid payload ka case working hai — sab fields hain to status: accepted aa raha hai aur clean normalized object ban raha hai.
+
+Ab hum check karenge ke missing fields wala case (rejection) bhi kaam karta hai ya nahi.
+
+Step 4 — Rejection test karo (Node ke andar hi)
+
+Is Code node ke box ko band karo (upar right corner mein X icon).
+
+Ab Webhook node par wapas jao aur naya test payload bhejna hai jisme koi field missing ho.
+
+PowerShell mein ye command chalao (isme order_id aur message missing hain jaan-boojh kar):
+
+Invoke-RestMethod `
+  -Uri "http://localhost:5678/webhook-test/ops-event" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"customer_id":"CUS-002","source":"customer_support"}'
+
+Yaad rahe — is se pehle n8n mein "Execute workflow" button dabana hoga taake webhook dobara listening mode mein aaye (jaise pehle karte the).
+
+Steps:
+
+n8n canvas par wapas jao
+"Execute workflow" button dabao
+Phir PowerShell mein upar wala command run karo
+Jo output aaye wo mujhe bhejo (ya screenshot)
+
+Hum dekhenge ke Code node status: rejected return karta hai ya nahi.
+
+1788022517825_image.png
+Bilkul perfect! 🎉
+
+status: rejected
+reason: Missing fields: order_id, message
+Ye exactly wahi hai jo hona chahiye tha. Iska matlab tumhara validation logic dono cases mein sahi kaam kar raha hai:
+
+✅ Valid payload → accepted + normalized incident object
+✅ Invalid payload → rejected + reason batata hai kaunse fields missing hain
+Ye Phase 1 ka core logic (Step 4 aur Step 5) complete ho gaya hai. Ab bas ek chhoti si cheez baaki hai — branching, taake reject hone par system age na jaye (abhi dono cases same node se guzarte hain, lekin future mein reject wala incident database mein nahi jaana chahiye).
+
+If node khul gaya hai, ab condition set karte hain.
+
+Step 7 — Condition set karo
+
+value1 box par click karo (jahan likha hai "value1").
+Left side "INPUT" panel se, status field ko drag karke value1 box mein daal do — YA phir manually type karo:
+   {{ $json.status }}
+value2 box mein type karo:
+   accepted
+Beech mein "is equal to" hi rehne do (already sahi hai).
+
+Matlab condition ban jayega: agar status "accepted" hai to True branch, warna False branch.
+
+Ye karne ke baad mujhe batao "ho gaya" — phir hum is If node ko test karenge (Execute step dabake) aur dekhenge ke True/False dono branch sahi kaam karte hain.\
+
+Phase 1 — Event Intake: COMPLETE ✅
+
+Tumne ye sab bana liya hai:
+
+Webhook Trigger (POST events receive karta hai)
+Code node — validation (required fields check karta hai)
+Code node — normalized incident object banata hai
+If node — accepted/rejected ke hisab se branch karta hai
+Testing checklist pura hua (5+ valid, 5+ invalid, multiple sources)
+
+Roadmap ke mutabiq ab tumhara Phase 1 officially done hai. GitHub milestone bhi update kar sakte ho: M2: Event intake complete ✅
+
+Ab agla kaam — Phase 2: Incident Database (PostgreSQL)
+
+Iska matlab: True branch (accepted incidents) ko ab hum PostgreSQL database mein save karenge, taake data permanently store ho.
+
+Kya tum abhi Phase 2 shuru karna chahte ho, ya pehle thoda break lena chahte ho? Agar shuru karna hai, to bata do — main tumhe bilkul isi tarah step-by-step, simple Roman English mein guide karunga.
