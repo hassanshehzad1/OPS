@@ -1,0 +1,35 @@
+Phase 2 — Summary (Event Validation & Normalization)
+
+Status: ✅ COMPLETE
+
+Kya Banaya
+Webhook
+   ↓
+   IF (validation)
+  ↙        ↘
+True        False
+ ↓            ↓
+Normalize   Reject
+Event       Invalid Event
+Feature-wise Breakdown
+Feature	Kya Kiya	Status
+2.1 — Required Fields Validation	IF node mein 3 conditions add ki (customer_id, order_id, message — sab "is not empty", AND se joint)	✅ Done
+2.2 — Data Normalization	"Normalize Events" node banaya jo clean object deta hai: incident_id, customer_id, order_id, message, source, timestamp, status: NEW	✅ Done
+2.3 — Invalid-event Response	"Rejected Invalid Fields" node banaya (Set node, JSON mode) jo deta hai: status: rejected, reason, received_at	✅ Done
+2.4 — Testing	5 valid + 5 invalid payloads test kiye — True/False branch dono sahi kaam kar rahe hain	✅ Done
+Key Learnings Is Phase Mein
+IF node ka AND logic — teeno fields required hain valid hone ke liye
+Field naming mein dot notation avoid karna (incident.xxx nahi, sirf xxx) — warna nested object ban jata hai jo confusion create karta hai
+Expression humesha source node se refer karo ($('Webhook').item.json...), apne node ke andar se nahi (circular reference se empty output aata hai)
+JSON mode mein expressions ko sahi resolve karwane ke liye poore block ko Expression mode mein hona chahiye
+Final Output (Normalized Event)
+json
+{
+  "incident_id": "INC-...",
+  "customer_id": "CUS-001",
+  "order_id": "ORD-1001",
+  "message": "My order is 3 days late",
+  "source": "customer_support",
+  "timestamp": "2026-09-02T...",
+  "status": "NEW"
+}
