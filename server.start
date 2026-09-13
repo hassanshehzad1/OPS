@@ -26,3 +26,5 @@ Logs dekhne hon:
 docker compose logs n8n --tail=50
 
 Ab docker compose up -d chalao → docker compose ps check karo → phir n8n open ka
+
+docker exec -it opspilot-postgres psql -U opspilot_user -d opspilot_db

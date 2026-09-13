@@ -1,0 +1,30 @@
+## Phase 5 — Business Impact — Complete Summary 📋
+
+**Maqsad tha:** AI ke "high/critical severity" jaise words ke bajaye, **exact business numbers** nikalna — kitna financial loss hua, kitni der late hua — aur ye sab **deterministic formula** se (AI se nahi), taake fake numbers na banein.
+
+### Kya Banaya:
+
+1. **`orders` table** — Test data banaya (order_id, order_value, status, dates wagera) taake real order info database se mil sake
+
+2. **"Fetch Order Value" node** — Har incident ke `order_id` se PostgreSQL query karke us order ka raw data nikalta hai (order_value, delivery dates, status)
+
+3. **"Calculate Impact" node (Code)** — Raw data se formula lagake ye calculate karta hai:
+   - `delay_days` — kitne din late hua
+   - `impact_score` (0-100) — order value + delay + severity ko combine karke
+   - `order_found` — agar order database mein na mile to fake number (0) explicitly flag hota hai, chhupaya nahi jata
+
+4. **"Combine Impact and LLM chain" (Merge node)** — AI ka triage data (category/severity) aur Calculate Impact ka data — dono ko ek sath jodta hai, taake "Build Triage result" ko dono mil sakein
+
+5. **`impact_analysis` table** — Naya separate table banaya (roadmap ke mutabiq) taake impact data `incidents` table se alag, clean rahe
+
+6. **"Insert Impact Analysis" node** — Har incident ke liye impact numbers (financial_impact, delay_days, impact_score wagera) is naye table mein save karta hai, `incidents` insert ke turant baad
+
+### Test Kiya:
+- ✅ Bada order (4500, delayed) → high impact_score (60) sahi aaya
+- ✅ Poora pipeline end-to-end chala: Webhook → AI Triage → Impact Calculate → Database (dono tables)
+- ✅ Data database mein verify hua
+
+### Result:
+Ab system har incident ke sath sirf "ye critical hai" nahi bolta — balke **exact number** deta hai ke kitna nuksan hua, taake Phase 6-7 (Action Planner, Decision Engine) is number ka use karke smart decisions le sakein (auto-resolve karna hai ya approval leni hai).
+
+**Phase 5 complete hai.** Ab Phase 6 (Action Planner) shuru karein?
