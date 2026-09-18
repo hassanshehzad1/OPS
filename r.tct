@@ -1,0 +1,107 @@
+# Dummy Test Data — Video Ke Liye (Live Run Karte Waqt)
+
+Video recording ke waqt, har section mein ye specific payloads use karo taake screen pe live results dikhein.
+
+---
+
+## 🎬 Demo Ke Liye 3 Payloads (Alag-Alag Severity Dikhane Ke Liye)
+
+### 1️⃣ CRITICAL Incident (Escalation Dikhane Ke Liye)
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5678/webhook-test/ops-event" -Method Post -ContentType "application/json" -Body '{
+    "customer_id": "CUS-500",
+    "order_id": "ORD-2001",
+    "message": "Payment gateway completely down, all customers affected, urgent",
+    "source": "customer_support"
+}'
+```
+**Expected on screen:**
+- severity: `critical`
+- action (Severity Router): `ESCALATE`
+- planned_action (AI Planner): `escalate`
+- requires_approval: `true`
+
+---
+
+### 2️⃣ LOW/MEDIUM Incident (Normal Flow Dikhane Ke Liye)
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5678/webhook-test/ops-event" -Method Post -ContentType "application/json" -Body '{
+    "customer_id": "CUS-501",
+    "order_id": "ORD-1002",
+    "message": "Just wanted to check my order status, no rush at all",
+    "source": "customer_support"
+}'
+```
+**Expected on screen:**
+- severity: `low` ya `medium`
+- action: `LOG` ya `MONITOR`
+- planned_action: `notify_customer` ya `update_record`
+- requires_approval: `false`
+
+---
+
+### 3️⃣ INVALID Payload (Validation Reject Dikhane Ke Liye)
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5678/webhook-test/ops-event" -Method Post -ContentType "application/json" -Body '{
+    "customer_id": "CUS-502",
+    "message": "Missing order id on purpose"
+}'
+```
+**Expected on screen:**
+```json
+{
+  "status": "rejected",
+  "reason": "Missing required fields (customer_id, order_id, or message)"
+}
+```
+
+---
+
+## 🎬 Section-Wise Kab Kya Chalana Hai
+
+### 1:00–2:00 (Live Workflow Demo) Mein — Is Order Mein Chalao:
+
+**Step A (0:05 pe):** Pehle **Invalid Payload (#3)** bhejo → dikhao ke reject ho raha hai (validation kaam kar rahi hai)
+> "See — if I send incomplete data, the system rejects it immediately."
+
+**Step B (0:20 pe):** Phir **Critical Payload (#1)** bhejo → poora flow live chalao
+> "Now let's send a real critical incident and watch it flow through the entire system."
+
+Screen pe dikhao:
+1. Webhook receive hua ✅
+2. Normalize hua ✅
+3. AI Triage → category: payment, severity: critical ✅
+4. Impact calculation → order value, impact score ✅
+5. Severity Router → Critical branch gaya ✅
+6. Action Planner → "escalate" recommend kiya ✅
+7. Database mein save hua ✅
+
+**Step C (database verify — terminal pe dikhao):**
+```sql
+SELECT incident_id, severity, action, planned_action, risk_level, requires_approval, impact_score 
+FROM incidents 
+ORDER BY id DESC LIMIT 1;
+```
+
+---
+
+## 🎬 2:35–3:00 (Testing Section) Mein — Quick Dikhane Ke Liye
+
+**Ek chhota comparison dikhao** — critical vs low, side by side (agar terminal mein dono queries chala sakte ho):
+
+```sql
+SELECT incident_id, severity, action, planned_action, risk_level 
+FROM incidents 
+ORDER BY id DESC LIMIT 5;
+```
+
+Isse screen pe multiple incidents dikhenge different severities/actions ke sath — proof ke taur pe ke system consistently kaam kar raha hai.
+
+---
+
+## 💡 Recording Tip
+
+Har payload bhejne se pehle **1-2 second ruko** taake n8n ka execution animation (green ticks progress karte hue) screen pe clearly record ho — viewers ko flow samajh aayega.
